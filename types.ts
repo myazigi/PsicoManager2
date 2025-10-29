@@ -90,3 +90,10 @@ export type TimelineEvent = {
     type: TimelineEventItemType;
     data: Note | Invoice | TimelinePayment;
 };
+
+// --- Tipos para Autenticación ---
+
+export interface User {
+  email: string;
+  hashedPassword: string;
+}

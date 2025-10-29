@@ -155,3 +155,16 @@ export async function decryptData(encryptedBase64: string, key: CryptoKey): Prom
   const decoder = new TextDecoder();
   return decoder.decode(decryptedData);
 }
+
+
+/**
+ * Genera un hash SHA-256 de una cadena de texto (contraseña).
+ * @param text El texto a hashear.
+ * @returns Una promesa que se resuelve con el hash en formato Base64.
+ */
+export async function hashPassword(text: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await window.crypto.subtle.digest(HASH_ALGORITHM, data);
+    return bufferToBase64(hashBuffer);
+}
