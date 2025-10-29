@@ -1,5 +1,6 @@
+
 import React, { useState, useCallback } from 'react';
-import { Patient, Note, Invoice } from '../types';
+import { Patient, Note, Invoice, PatientStatus } from '../types';
 import { summarizeNotes } from '../services/geminiService';
 import { SparklesIcon, PlusIcon, AttachmentIcon, DocumentTextIcon, ClockIcon } from './Icons';
 import { Billing } from './Billing';
@@ -144,6 +145,47 @@ const NotesView: React.FC<{patient: Patient, onUpdatePatient: (updatedPatient: P
   )
 }
 
+// Componente para el selector de estado del paciente
+const PatientStatusChanger: React.FC<{ patient: Patient; onUpdatePatient: (patient: Patient) => void; }> = ({ patient, onUpdatePatient }) => {
+  const getStatusClasses = (status: PatientStatus) => {
+    switch (status) {
+      case PatientStatus.Active:
+        return 'bg-green-100 text-green-800 border-green-300 focus:ring-green-500';
+      case PatientStatus.Inactive:
+        return 'bg-gray-100 text-gray-800 border-gray-300 focus:ring-gray-500';
+      case PatientStatus.OnHold:
+        return 'bg-yellow-100 text-yellow-800 border-yellow-300 focus:ring-yellow-500';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-300 focus:ring-gray-500';
+    }
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value as PatientStatus;
+    onUpdatePatient({ ...patient, status: newStatus });
+  };
+
+  return (
+    <div className="mt-2">
+      <label htmlFor="patient-status" className="sr-only">
+        Estado del Paciente
+      </label>
+      <select
+        id="patient-status"
+        value={patient.status}
+        onChange={handleStatusChange}
+        className={`text-sm font-medium rounded-full py-1 pl-3 pr-8 border appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${getStatusClasses(patient.status)}`}
+      >
+        {Object.values(PatientStatus).map((s) => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
+
 export const PatientDetail: React.FC<PatientDetailProps> = (props) => {
   const [activeTab, setActiveTab] = useState<'notes' | 'billing' | 'history'>('notes');
   const { patient, invoices, onUpdatePatient, onAddInvoice, onUpdateInvoice } = props;
@@ -151,11 +193,12 @@ export const PatientDetail: React.FC<PatientDetailProps> = (props) => {
   return (
     <div className="p-4 md:p-6 lg:p-8 h-full overflow-y-auto">
       <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-start space-x-4">
           <img src={patient.avatarUrl} alt={patient.name} className="w-20 h-20 rounded-full object-cover" />
-          <div>
+          <div className="flex-1">
             <h1 className="text-3xl font-bold text-brand-text">{patient.name}</h1>
             <p className="text-brand-muted">{patient.email}</p>
+            <PatientStatusChanger patient={patient} onUpdatePatient={onUpdatePatient} />
           </div>
         </div>
       </div>

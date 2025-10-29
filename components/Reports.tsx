@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Invoice, Patient, Payment } from '../types';
 
@@ -39,9 +40,9 @@ export const Reports: React.FC<ReportsProps> = ({ invoices, patients }) => {
             <h1 className="text-3xl font-bold text-brand-text mb-6">Informes Financieros</h1>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-xl shadow-sm"><div className="text-sm text-gray-600">Ingresos Totales (Cobrado)</div><div className="text-3xl font-bold text-green-600 mt-2">{financialSummary.totalPaid.toFixed(2)}€</div></div>
-                <div className="bg-white p-6 rounded-xl shadow-sm"><div className="text-sm text-gray-600">Total Pendiente de Cobro</div><div className="text-3xl font-bold text-red-600 mt-2">{financialSummary.totalPending.toFixed(2)}€</div></div>
-                <div className="bg-white p-6 rounded-xl shadow-sm"><div className="text-sm text-gray-600">Total Facturado</div><div className="text-3xl font-bold text-brand-text mt-2">{financialSummary.totalBilled.toFixed(2)}€</div></div>
+                <div className="bg-white p-6 rounded-xl shadow-sm"><div className="text-sm text-gray-600">Ingresos Totales (Cobrado)</div><div className="text-3xl font-bold text-green-600 mt-2">{financialSummary.totalPaid.toFixed(2)}$</div></div>
+                <div className="bg-white p-6 rounded-xl shadow-sm"><div className="text-sm text-gray-600">Total Pendiente de Cobro</div><div className="text-3xl font-bold text-red-600 mt-2">{financialSummary.totalPending.toFixed(2)}$</div></div>
+                <div className="bg-white p-6 rounded-xl shadow-sm"><div className="text-sm text-gray-600">Total Facturado</div><div className="text-3xl font-bold text-brand-text mt-2">{financialSummary.totalBilled.toFixed(2)}$</div></div>
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm">
@@ -62,7 +63,7 @@ export const Reports: React.FC<ReportsProps> = ({ invoices, patients }) => {
                                     <td className="px-4 py-3 text-gray-700">{new Date(payment.date).toLocaleDateString()}</td>
                                     <td className="px-4 py-3 font-medium text-brand-text">{payment.patientName}</td>
                                     <td className="px-4 py-3 text-gray-700">{payment.invoiceNumber}</td>
-                                    <td className="px-4 py-3 text-right font-semibold text-green-700">{payment.amount.toFixed(2)}€</td>
+                                    <td className="px-4 py-3 text-right font-semibold text-green-700">{payment.amount.toFixed(2)}$</td>
                                 </tr>
                             ))}
                         </tbody>

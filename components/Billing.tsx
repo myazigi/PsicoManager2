@@ -58,7 +58,7 @@ const InvoiceEditor: React.FC<{ patient: Patient, onSave: (invoiceData: Omit<Inv
                         <input type="text" placeholder="Descripción" value={item.description} onChange={e => handleItemChange(index, 'description', e.target.value)} className="col-span-6 border-gray-300 rounded-md shadow-sm" />
                         <input type="number" placeholder="Cant." value={item.quantity} onChange={e => handleItemChange(index, 'quantity', Number(e.target.value))} className="col-span-2 border-gray-300 rounded-md shadow-sm" />
                         <input type="number" placeholder="Precio" value={item.unitPrice} onChange={e => handleItemChange(index, 'unitPrice', Number(e.target.value))} className="col-span-2 border-gray-300 rounded-md shadow-sm" />
-                        <span className="col-span-1 text-right">{(item.quantity * item.unitPrice).toFixed(2)}€</span>
+                        <span className="col-span-1 text-right">{(item.quantity * item.unitPrice).toFixed(2)}$</span>
                         <button onClick={() => removeItem(index)} className="col-span-1 text-red-500 hover:text-red-700"><TrashIcon className="w-5 h-5 mx-auto" /></button>
                     </div>
                 ))}
@@ -67,8 +67,8 @@ const InvoiceEditor: React.FC<{ patient: Patient, onSave: (invoiceData: Omit<Inv
 
             <div className="mt-6 flex justify-end">
                 <div className="text-right">
-                    <p><span className="font-semibold">Subtotal:</span> {subtotal.toFixed(2)}€</p>
-                    <p className="text-xl font-bold"><span className="font-semibold">Total:</span> {subtotal.toFixed(2)}€</p>
+                    <p><span className="font-semibold">Subtotal:</span> {subtotal.toFixed(2)}$</p>
+                    <p className="text-xl font-bold"><span className="font-semibold">Total:</span> {subtotal.toFixed(2)}$</p>
                 </div>
             </div>
 
@@ -97,7 +97,7 @@ const PaymentModal: React.FC<{invoice: Invoice, onSave: (payment: Omit<Payment, 
 
     return (
         <div>
-            <p className="mb-4">Añadir pago a la factura <span className="font-semibold">{invoice.invoiceNumber}</span>. Pendiente: {remainingAmount.toFixed(2)}€</p>
+            <p className="mb-4">Añadir pago a la factura <span className="font-semibold">{invoice.invoiceNumber}</span>. Pendiente: {remainingAmount.toFixed(2)}$</p>
             <div className="grid grid-cols-2 gap-4">
                 <div><label className="block text-sm font-medium text-gray-700">Importe</label><input type="number" value={amount} onChange={e => setAmount(Number(e.target.value))} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"/></div>
                 <div><label className="block text-sm font-medium text-gray-700">Fecha</label><input type="date" value={date} onChange={e => setDate(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"/></div>
@@ -133,18 +133,18 @@ const InvoiceDetailModal: React.FC<{ invoice: Invoice, onAddPayment: (payment: O
             <h4 className="font-semibold mb-2 text-brand-text">Conceptos</h4>
             <table className="w-full text-left text-sm mb-6">
                 <thead><tr className="border-b"><th className="py-2">Descripción</th><th>Cant.</th><th>P. Unit.</th><th className="text-right">Total</th></tr></thead>
-                <tbody>{invoice.items.map(item => <tr key={item.id}><td className="py-1">{item.description}</td><td>{item.quantity}</td><td>{item.unitPrice.toFixed(2)}€</td><td className="text-right">{(item.quantity * item.unitPrice).toFixed(2)}€</td></tr>)}</tbody>
+                <tbody>{invoice.items.map(item => <tr key={item.id}><td className="py-1">{item.description}</td><td>{item.quantity}</td><td>{item.unitPrice.toFixed(2)}$</td><td className="text-right">{(item.quantity * item.unitPrice).toFixed(2)}$</td></tr>)}</tbody>
             </table>
-            <div className="flex justify-end mb-6"><div className="w-1/3"><div className="flex justify-between border-t pt-2"><span className="font-semibold">Total:</span><span className="font-bold">{total.toFixed(2)}€</span></div></div></div>
+            <div className="flex justify-end mb-6"><div className="w-1/3"><div className="flex justify-between border-t pt-2"><span className="font-semibold">Total:</span><span className="font-bold">{total.toFixed(2)}$</span></div></div></div>
             
             <h4 className="font-semibold mb-2 text-brand-text">Pagos</h4>
             {invoice.payments.length > 0 ? (
                 <table className="w-full text-left text-sm">
                     <thead><tr className="border-b"><th className="py-2">Fecha</th><th>Método</th><th className="text-right">Importe</th></tr></thead>
-                    <tbody>{invoice.payments.map(p => <tr key={p.id}><td className="py-1">{new Date(p.date).toLocaleDateString()}</td><td>{p.method}</td><td className="text-right">{p.amount.toFixed(2)}€</td></tr>)}</tbody>
+                    <tbody>{invoice.payments.map(p => <tr key={p.id}><td className="py-1">{new Date(p.date).toLocaleDateString()}</td><td>{p.method}</td><td className="text-right">{p.amount.toFixed(2)}$</td></tr>)}</tbody>
                 </table>
             ) : <p className="text-sm text-gray-500">No hay pagos registrados.</p>}
-            <div className="flex justify-end mt-2"><div className="w-1/3"><div className="flex justify-between border-t pt-2"><span className="font-semibold">Total Pagado:</span><span className="font-bold text-green-600">{paid.toFixed(2)}€</span></div><div className="flex justify-between"><span className="font-semibold">Pendiente:</span><span className="font-bold text-red-600">{pending.toFixed(2)}€</span></div></div></div>
+            <div className="flex justify-end mt-2"><div className="w-1/3"><div className="flex justify-between border-t pt-2"><span className="font-semibold">Total Pagado:</span><span className="font-bold text-green-600">{paid.toFixed(2)}$</span></div><div className="flex justify-between"><span className="font-semibold">Pendiente:</span><span className="font-bold text-red-600">{pending.toFixed(2)}$</span></div></div></div>
         </div>
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
             <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cerrar</button>
@@ -207,9 +207,9 @@ export const Billing: React.FC<BillingProps> = ({ patient, invoices, onAddInvoic
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg"><div className="text-sm text-gray-600">Total Facturado</div><div className="text-2xl font-bold text-brand-text">{financialSummary.totalBilled.toFixed(2)}€</div></div>
-                <div className="bg-green-50 p-4 rounded-lg"><div className="text-sm text-green-800">Total Cobrado</div><div className="text-2xl font-bold text-green-700">{financialSummary.totalPaid.toFixed(2)}€</div></div>
-                <div className="bg-red-50 p-4 rounded-lg"><div className="text-sm text-red-800">Pendiente de Cobro</div><div className="text-2xl font-bold text-red-700">{financialSummary.totalPending.toFixed(2)}€</div></div>
+                <div className="bg-gray-50 p-4 rounded-lg"><div className="text-sm text-gray-600">Total Facturado</div><div className="text-2xl font-bold text-brand-text">{financialSummary.totalBilled.toFixed(2)}$</div></div>
+                <div className="bg-green-50 p-4 rounded-lg"><div className="text-sm text-green-800">Total Cobrado</div><div className="text-2xl font-bold text-green-700">{financialSummary.totalPaid.toFixed(2)}$</div></div>
+                <div className="bg-red-50 p-4 rounded-lg"><div className="text-sm text-red-800">Pendiente de Cobro</div><div className="text-2xl font-bold text-red-700">{financialSummary.totalPending.toFixed(2)}$</div></div>
             </div>
 
             <div className="bg-white border rounded-lg overflow-hidden">
@@ -229,7 +229,7 @@ export const Billing: React.FC<BillingProps> = ({ patient, invoices, onAddInvoic
                                 <tr key={invoice.id} onClick={() => setSelectedInvoice(invoice)} className="hover:bg-gray-50 cursor-pointer">
                                     <td className="px-4 py-3 font-medium text-brand-primary">{invoice.invoiceNumber}</td>
                                     <td className="px-4 py-3 text-gray-700">{new Date(invoice.issueDate).toLocaleDateString()}</td>
-                                    <td className="px-4 py-3 text-gray-700">{total.toFixed(2)}€</td>
+                                    <td className="px-4 py-3 text-gray-700">{total.toFixed(2)}$</td>
                                     <td className="px-4 py-3"><InvoiceStatusBadge status={invoice.status} /></td>
                                 </tr>
                             );

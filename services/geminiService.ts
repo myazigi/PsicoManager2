@@ -3,8 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 import { Note } from '../types';
 
 if (!process.env.API_KEY) {
-  // This is a placeholder check. In a real environment, the key should be set.
-  console.warn("API_KEY environment variable not set. Gemini API calls will fail.");
+  // Esta es una verificación de marcador de posición. En un entorno real, la clave debe estar configurada.
+  console.warn("La variable de entorno API_KEY no está configurada. Las llamadas a la API de Gemini fallarán.");
 }
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
@@ -46,7 +46,7 @@ export const summarizeNotes = async (patientName: string, notes: Note[]): Promis
     });
     return response.text;
   } catch (error) {
-    console.error("Error calling Gemini API:", error);
+    console.error("Error al llamar a la API de Gemini:", error);
     return "Hubo un error al generar el resumen. Por favor, revisa la consola para más detalles.";
   }
 };

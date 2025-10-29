@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Patient, Invoice, TimelineEvent, TimelineEventItemType, Note, TimelinePayment, InvoiceStatus } from '../types';
 import { DocumentTextIcon, AttachmentIcon, SparklesIcon, CurrencyDollarIcon, CheckCircleIcon, ClockIcon, ExclamationCircleIcon } from './Icons';
@@ -49,7 +50,7 @@ const InvoiceCard: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
                 </div>
                 <InvoiceStatusBadge status={invoice.status} />
             </div>
-            <p className="mt-2 text-xl font-bold text-brand-text">{total.toFixed(2)}€</p>
+            <p className="mt-2 text-xl font-bold text-brand-text">{total.toFixed(2)}$</p>
         </div>
     );
 };
@@ -57,7 +58,7 @@ const InvoiceCard: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
 const PaymentCard: React.FC<{ payment: TimelinePayment }> = ({ payment }) => (
     <div>
         <h4 className="font-semibold text-brand-secondary">Pago Recibido</h4>
-        <p className="mt-2 text-xl font-bold text-green-600">{payment.amount.toFixed(2)}€</p>
+        <p className="mt-2 text-xl font-bold text-green-600">{payment.amount.toFixed(2)}$</p>
         <p className="text-sm text-brand-muted">Método: {payment.method} | Factura: {payment.invoiceNumber}</p>
     </div>
 );

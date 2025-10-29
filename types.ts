@@ -1,9 +1,10 @@
+
 export interface Attachment {
   id: string;
   fileName: string;
   fileType: string;
-  size: number; // in bytes
-  url: string; // For mock purposes, would be a real URL
+  size: number; // en bytes
+  url: string; // Para fines de prueba, sería una URL real
 }
 
 export interface Note {
@@ -85,7 +86,7 @@ export type TimelinePayment = Payment & {
 };
 
 export type TimelineEvent = {
-    date: string; // ISO String for sorting
+    date: string; // Cadena ISO para ordenar
     type: TimelineEventItemType;
     data: Note | Invoice | TimelinePayment;
 };

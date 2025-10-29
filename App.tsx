@@ -1,14 +1,15 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-// Fix: Import InvoiceStatus to resolve type error when assigning invoice status.
 import { Patient, PatientStatus, Invoice, InvoiceStatus } from './types';
 import { MOCK_PATIENTS, MOCK_INVOICES } from './constants';
 import { SearchIcon, FilterIcon, UserGroupIcon, ChartBarIcon, LogoutIcon, PlusIcon } from './components/Icons';
 import { PatientDetail } from './components/PatientDetail';
 import { Reports } from './components/Reports';
 import { AddPatientModal } from './components/AddPatientModal';
+import { PatientListItem } from './components/PatientListItem';
+import { ConfirmationModal } from './components/ConfirmationModal';
 
-// Mock Login Screen Component defined in the same file to keep file count low
+// Componente de pantalla de inicio de sesión de prueba (definido en el mismo archivo para simplicidad)
 const LoginScreen: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,7 +17,7 @@ const LoginScreen: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would be an API call
+    // En una aplicación real, esto sería una llamada a la API
     if (email === 'psicologo@test.com' && password === 'password') {
       onLogin();
     } else {
@@ -76,39 +77,63 @@ const LoginScreen: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   );
 };
 
-const PatientListItem: React.FC<{patient: Patient; isSelected: boolean; onSelect: () => void}> = ({patient, isSelected, onSelect}) => {
-    const statusColor = {
-        [PatientStatus.Active]: 'bg-green-100 text-green-800',
-        [PatientStatus.Inactive]: 'bg-gray-100 text-gray-800',
-        [PatientStatus.OnHold]: 'bg-yellow-100 text-yellow-800',
-    };
-    
-    return (
-        <li
-            onClick={onSelect}
-            className={`flex items-center p-3 space-x-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-brand-primary text-white' : 'hover:bg-gray-100'}`}
-        >
-            <img className="w-12 h-12 rounded-full object-cover flex-shrink-0" src={patient.avatarUrl} alt={patient.name} />
-            <div className="flex-1 min-w-0">
-                <p className={`font-semibold truncate ${isSelected ? 'text-white' : 'text-brand-text'}`}>{patient.name}</p>
-                <div className="flex items-center text-sm">
-                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${isSelected ? 'bg-white/30 text-white' : statusColor[patient.status]}`}>{patient.status}</span>
-                </div>
-            </div>
-        </li>
-    );
-};
 
-// Main App Component
+// Componente principal de la aplicación
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [patients, setPatients] = useState<Patient[]>(MOCK_PATIENTS);
-  const [invoices, setInvoices] = useState<Invoice[]>(MOCK_INVOICES);
+  
+  // --- INICIO: Lógica de Persistencia de Datos con localStorage ---
+
+  // Carga inicial de pacientes desde localStorage. Si no hay datos, usa los de prueba.
+  const [patients, setPatients] = useState<Patient[]>(() => {
+    try {
+      const savedPatients = localStorage.getItem('psiqueManager_patients');
+      // Si existen datos guardados, los parsea. Si no, usa MOCK_PATIENTS.
+      return savedPatients ? JSON.parse(savedPatients) : MOCK_PATIENTS;
+    } catch (error) {
+      console.error("Error al leer pacientes de localStorage:", error);
+      // En caso de error (ej. JSON malformado), vuelve a los datos de prueba.
+      return MOCK_PATIENTS;
+    }
+  });
+
+  // Carga inicial de facturas desde localStorage.
+  const [invoices, setInvoices] = useState<Invoice[]>(() => {
+    try {
+      const savedInvoices = localStorage.getItem('psiqueManager_invoices');
+      return savedInvoices ? JSON.parse(savedInvoices) : MOCK_INVOICES;
+    } catch (error) {
+      console.error("Error al leer facturas de localStorage:", error);
+      return MOCK_INVOICES;
+    }
+  });
+
+  // Efecto para guardar los pacientes en localStorage cada vez que el estado 'patients' cambie.
+  useEffect(() => {
+    try {
+      localStorage.setItem('psiqueManager_patients', JSON.stringify(patients));
+    } catch (error) {
+      console.error("Error al guardar pacientes en localStorage:", error);
+    }
+  }, [patients]);
+
+  // Efecto para guardar las facturas en localStorage cada vez que el estado 'invoices' cambie.
+  useEffect(() => {
+    try {
+      localStorage.setItem('psiqueManager_invoices', JSON.stringify(invoices));
+    } catch (error) {
+      console.error("Error al guardar facturas en localStorage:", error);
+    }
+  }, [invoices]);
+
+  // --- FIN: Lógica de Persistencia de Datos ---
+
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<PatientStatus | 'all'>('all');
   const [currentView, setCurrentView] = useState<'patients' | 'reports'>('patients');
   const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
+  const [patientToDeleteId, setPatientToDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (patients.length > 0 && !selectedPatientId) {
@@ -146,7 +171,6 @@ function App() {
         ...newInvoiceData,
         id: `inv-${Date.now()}`,
         invoiceNumber: `2024-${String(lastInvoiceNumber + 1).padStart(3, '0')}`,
-        // Fix: Use InvoiceStatus enum members instead of string literals to avoid type errors.
         status: new Date(newInvoiceData.dueDate) < new Date() ? InvoiceStatus.Overdue : InvoiceStatus.Pending,
     };
     setInvoices(prev => [newInvoice, ...prev]);
@@ -156,6 +180,40 @@ function App() {
   const handleUpdateInvoice = (updatedInvoice: Invoice) => {
     setInvoices(prev => prev.map(inv => inv.id === updatedInvoice.id ? updatedInvoice : inv));
   };
+  
+  const handleRequestDeletePatient = (patientId: string) => {
+    setPatientToDeleteId(patientId);
+  };
+
+  const handleCancelDelete = () => {
+    setPatientToDeleteId(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!patientToDeleteId) return;
+
+    // Guardar el índice del paciente a eliminar y el ID del paciente seleccionado actualmente
+    const patientIndexToDelete = filteredPatients.findIndex(p => p.id === patientToDeleteId);
+    
+    // Filtrar pacientes y facturas
+    setPatients(prev => prev.filter(p => p.id !== patientToDeleteId));
+    setInvoices(prev => prev.filter(inv => inv.patientId !== patientToDeleteId));
+
+    // Si el paciente eliminado era el seleccionado, seleccionar otro
+    if (selectedPatientId === patientToDeleteId) {
+        let newSelectedId: string | null = null;
+        if (filteredPatients.length > 1) {
+            // Intentar seleccionar el siguiente, si no, el anterior
+            newSelectedId = (patientIndexToDelete < filteredPatients.length - 1) 
+                ? filteredPatients[patientIndexToDelete + 1].id
+                : filteredPatients[patientIndexToDelete - 1].id;
+        }
+        setSelectedPatientId(newSelectedId);
+    }
+    
+    setPatientToDeleteId(null);
+  };
+
 
   const filteredPatients = useMemo(() => {
     return patients
@@ -169,6 +227,11 @@ function App() {
   }, [patients, searchTerm, statusFilter]);
 
   const selectedPatient = useMemo(() => {
+    // Si el paciente seleccionado ya no existe en la lista, deseleccionarlo.
+    if (selectedPatientId && !patients.some(p => p.id === selectedPatientId)) {
+      setSelectedPatientId(null);
+      return undefined;
+    }
     return patients.find(p => p.id === selectedPatientId);
   }, [patients, selectedPatientId]);
 
@@ -245,6 +308,7 @@ function App() {
                                 patient={patient}
                                 isSelected={selectedPatientId === patient.id}
                                 onSelect={() => setSelectedPatientId(patient.id)}
+                                onRequestDelete={() => handleRequestDeletePatient(patient.id)}
                             />
                         ))}
                     </ul>
@@ -273,7 +337,7 @@ function App() {
             <div className="flex items-center justify-center h-full">
                 <div className="text-center text-brand-muted">
                     <h2 className="text-2xl font-semibold">Bienvenido/a</h2>
-                    <p>Selecciona un paciente de la lista para ver sus detalles.</p>
+                    <p>Selecciona un paciente de la lista para ver sus detalles o añade uno nuevo.</p>
                 </div>
             </div>
         ) : (
@@ -286,6 +350,16 @@ function App() {
           onClose={() => setIsAddPatientModalOpen(false)}
           onAddPatient={handleAddPatient}
         />
+      )}
+
+      {patientToDeleteId && (
+        <ConfirmationModal
+          title="Confirmar Eliminación"
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+        >
+          <p>¿Estás seguro de que quieres eliminar a este paciente? Se borrarán todos sus datos, incluyendo notas y facturas. Esta acción no se puede deshacer.</p>
+        </ConfirmationModal>
       )}
     </div>
   );
