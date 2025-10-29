@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Patient, PatientStatus, Invoice, InvoiceStatus, User } from './types';
 import { MOCK_PATIENTS, MOCK_INVOICES } from './constants';
-import { SearchIcon, FilterIcon, UserGroupIcon, ChartBarIcon, LogoutIcon, PlusIcon } from './components/Icons';
+import { SearchIcon, FilterIcon, UserGroupIcon, ChartBarIcon, LogoutIcon, PlusIcon, Cog6ToothIcon } from './components/Icons';
 import { PatientDetail } from './components/PatientDetail';
 import { Reports } from './components/Reports';
 import { Settings } from './components/Settings';
@@ -101,6 +101,8 @@ const AuthScreen: React.FC<{ onAuthSuccess: (user: User, key: CryptoKey) => void
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [encryptionKey, setEncryptionKey] = useState<CryptoKey | null>(null);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -138,6 +140,14 @@ function App() {
     setEncryptionKey(key);
 
     const users = JSON.parse(localStorage.getItem('psiqueManager_users') || '[]');
+    setAllUsers(users);
+    // El primer usuario registrado se considera administrador
+    if (users.length > 0 && users[0].email === user.email) {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
+
     const isFirstUser = users.length === 1 && users[0].email === user.email;
 
     const encryptedPatients = localStorage.getItem(`psiqueManager_patients_encrypted_${user.email}`);
@@ -168,6 +178,22 @@ function App() {
     setInvoices([]);
     setSelectedPatientId(null);
     setCurrentView('patients');
+    setIsAdmin(false);
+    setAllUsers([]);
+  };
+
+  const handleDeleteUser = (emailToDelete: string) => {
+    const currentUsers: User[] = JSON.parse(localStorage.getItem('psiqueManager_users') || '[]');
+    const updatedUsers = currentUsers.filter(u => u.email !== emailToDelete);
+    localStorage.setItem('psiqueManager_users', JSON.stringify(updatedUsers));
+    setAllUsers(updatedUsers);
+
+    localStorage.removeItem(`psiqueManager_patients_encrypted_${emailToDelete}`);
+    localStorage.removeItem(`psiqueManager_invoices_encrypted_${emailToDelete}`);
+
+    if (currentUser?.email === emailToDelete) {
+        handleLogout();
+    }
   };
 
   const handleUpdateUserEmail = async (newEmail: string) => {
@@ -175,6 +201,7 @@ function App() {
     const users: User[] = JSON.parse(localStorage.getItem('psiqueManager_users') || '[]');
     const updatedUsers = users.map(u => u.email === currentUser.email ? { ...u, email: newEmail } : u);
     localStorage.setItem('psiqueManager_users', JSON.stringify(updatedUsers));
+    setAllUsers(updatedUsers);
     
     // Migrar datos
     const patientData = localStorage.getItem(`psiqueManager_patients_encrypted_${currentUser.email}`);
@@ -207,6 +234,7 @@ function App() {
     const users: User[] = JSON.parse(localStorage.getItem('psiqueManager_users') || '[]');
     const updatedUsers = users.map(u => u.email === currentUser.email ? { ...u, hashedPassword: newHashedPassword } : u);
     localStorage.setItem('psiqueManager_users', JSON.stringify(updatedUsers));
+    setAllUsers(updatedUsers);
     
     setEncryptionKey(newKey);
   };
@@ -290,7 +318,7 @@ function App() {
         <nav className="p-4 space-y-2">
             <button onClick={() => setCurrentView('patients')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium ${currentView === 'patients' ? 'bg-brand-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}><UserGroupIcon className="w-5 h-5" />Pacientes</button>
             <button onClick={() => setCurrentView('reports')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium ${currentView === 'reports' ? 'bg-brand-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}><ChartBarIcon className="w-5 h-5" />Informes</button>
-             <button onClick={() => setCurrentView('settings')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium ${currentView === 'settings' ? 'bg-brand-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}><UserGroupIcon className="w-5 h-5" />Ajustes</button>
+             <button onClick={() => setCurrentView('settings')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium ${currentView === 'settings' ? 'bg-brand-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}><Cog6ToothIcon className="w-5 h-5" />Ajustes</button>
         </nav>
         
         {currentView === 'patients' && (
@@ -308,7 +336,7 @@ function App() {
         {currentView === 'patients' && selectedPatient ? (<PatientDetail patient={selectedPatient} invoices={selectedPatientInvoices} onUpdatePatient={handleUpdatePatient} onAddInvoice={handleAddInvoice} onUpdateInvoice={handleUpdateInvoice} />) 
         : currentView === 'patients' ? (<div className="flex items-center justify-center h-full"><div className="text-center text-brand-muted"><h2 className="text-2xl font-semibold">Bienvenido/a</h2><p>Selecciona un paciente de la lista para ver sus detalles o añade uno nuevo.</p></div></div>) 
         : currentView === 'reports' ? <Reports invoices={invoices} patients={patients}/>
-        : <Settings user={currentUser} onUpdateEmail={handleUpdateUserEmail} onUpdatePassword={handleUpdateUserPassword} />}
+        : <Settings user={currentUser} isAdmin={isAdmin} allUsers={allUsers} onUpdateEmail={handleUpdateUserEmail} onUpdatePassword={handleUpdateUserPassword} onDeleteUser={handleDeleteUser} />}
       </main>
 
       {isAddPatientModalOpen && (<AddPatientModal onClose={() => setIsAddPatientModalOpen(false)} onAddPatient={handleAddPatient} />)}
