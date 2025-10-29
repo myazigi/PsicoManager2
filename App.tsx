@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Patient, PatientStatus, Invoice, InvoiceStatus } from './types';
 import { MOCK_PATIENTS, MOCK_INVOICES } from './constants';
 import { SearchIcon, FilterIcon, UserGroupIcon, ChartBarIcon, LogoutIcon, PlusIcon } from './components/Icons';
@@ -8,18 +8,18 @@ import { Reports } from './components/Reports';
 import { AddPatientModal } from './components/AddPatientModal';
 import { PatientListItem } from './components/PatientListItem';
 import { ConfirmationModal } from './components/ConfirmationModal';
+import { getEncryptionKey, encryptData, decryptData } from './utils/encryption';
 
-// Componente de pantalla de inicio de sesión de prueba (definido en el mismo archivo para simplicidad)
-const LoginScreen: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
+// Componente de pantalla de inicio de sesión de prueba
+const LoginScreen: React.FC<{ onLogin: (password: string) => void }> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // En una aplicación real, esto sería una llamada a la API
     if (email === 'psicologo@test.com' && password === 'password') {
-      onLogin();
+      onLogin(password);
     } else {
       setError('Credenciales inválidas. Inténtalo de nuevo.');
     }
@@ -81,52 +81,41 @@ const LoginScreen: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
 // Componente principal de la aplicación
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  // --- INICIO: Lógica de Persistencia de Datos con localStorage ---
+  const [encryptionKey, setEncryptionKey] = useState<CryptoKey | null>(null);
 
-  // Carga inicial de pacientes desde localStorage. Si no hay datos, usa los de prueba.
-  const [patients, setPatients] = useState<Patient[]>(() => {
-    try {
-      const savedPatients = localStorage.getItem('psiqueManager_patients');
-      // Si existen datos guardados, los parsea. Si no, usa MOCK_PATIENTS.
-      return savedPatients ? JSON.parse(savedPatients) : MOCK_PATIENTS;
-    } catch (error) {
-      console.error("Error al leer pacientes de localStorage:", error);
-      // En caso de error (ej. JSON malformado), vuelve a los datos de prueba.
-      return MOCK_PATIENTS;
-    }
-  });
+  // Los estados ahora se inicializan vacíos. Se cargarán después del login.
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
 
-  // Carga inicial de facturas desde localStorage.
-  const [invoices, setInvoices] = useState<Invoice[]>(() => {
-    try {
-      const savedInvoices = localStorage.getItem('psiqueManager_invoices');
-      return savedInvoices ? JSON.parse(savedInvoices) : MOCK_INVOICES;
-    } catch (error) {
-      console.error("Error al leer facturas de localStorage:", error);
-      return MOCK_INVOICES;
-    }
-  });
-
-  // Efecto para guardar los pacientes en localStorage cada vez que el estado 'patients' cambie.
+  // Efecto para encriptar y guardar los pacientes en localStorage cuando cambian.
   useEffect(() => {
-    try {
-      localStorage.setItem('psiqueManager_patients', JSON.stringify(patients));
-    } catch (error) {
-      console.error("Error al guardar pacientes en localStorage:", error);
-    }
-  }, [patients]);
+    const savePatients = async () => {
+      if (encryptionKey && patients.length > 0) { // Solo guarda si hay clave y datos
+        try {
+          const encryptedPatients = await encryptData(JSON.stringify(patients), encryptionKey);
+          localStorage.setItem('psiqueManager_patients_encrypted', encryptedPatients);
+        } catch (error) {
+          console.error("Error al encriptar y guardar pacientes:", error);
+        }
+      }
+    };
+    savePatients();
+  }, [patients, encryptionKey]);
 
-  // Efecto para guardar las facturas en localStorage cada vez que el estado 'invoices' cambie.
+  // Efecto para encriptar y guardar las facturas en localStorage cuando cambian.
   useEffect(() => {
-    try {
-      localStorage.setItem('psiqueManager_invoices', JSON.stringify(invoices));
-    } catch (error) {
-      console.error("Error al guardar facturas en localStorage:", error);
-    }
-  }, [invoices]);
-
-  // --- FIN: Lógica de Persistencia de Datos ---
+    const saveInvoices = async () => {
+      if (encryptionKey && invoices.length > 0) { // Solo guarda si hay clave y datos
+        try {
+          const encryptedInvoices = await encryptData(JSON.stringify(invoices), encryptionKey);
+          localStorage.setItem('psiqueManager_invoices_encrypted', encryptedInvoices);
+        } catch (error) {
+          console.error("Error al encriptar y guardar facturas:", error);
+        }
+      }
+    };
+    saveInvoices();
+  }, [invoices, encryptionKey]);
 
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -135,15 +124,56 @@ function App() {
   const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
   const [patientToDeleteId, setPatientToDeleteId] = useState<string | null>(null);
 
+  const handleLogin = useCallback(async (password: string) => {
+    try {
+      const key = await getEncryptionKey(password);
+      setEncryptionKey(key);
+      setIsAuthenticated(true);
+
+      // Desencriptar y cargar datos después de obtener la clave
+      const encryptedPatients = localStorage.getItem('psiqueManager_patients_encrypted');
+      if (encryptedPatients) {
+        const decrypted = await decryptData(encryptedPatients, key);
+        setPatients(JSON.parse(decrypted));
+      } else {
+        // Si no hay datos, usa los de prueba (solo la primera vez)
+        setPatients(MOCK_PATIENTS);
+      }
+
+      const encryptedInvoices = localStorage.getItem('psiqueManager_invoices_encrypted');
+      if (encryptedInvoices) {
+        const decrypted = await decryptData(encryptedInvoices, key);
+        setInvoices(JSON.parse(decrypted));
+      } else {
+        setInvoices(MOCK_INVOICES);
+      }
+    } catch (error) {
+      console.error("Error en el inicio de sesión o al descifrar datos:", error);
+      // Aquí se podría mostrar un error al usuario (ej. contraseña incorrecta)
+    }
+  }, []);
+  
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setEncryptionKey(null);
+    setPatients([]);
+    setInvoices([]);
+    setSelectedPatientId(null);
+  };
+  
   useEffect(() => {
     if (patients.length > 0 && !selectedPatientId) {
-        setSelectedPatientId(patients[0].id);
+        const firstPatient = patients.find(p => (statusFilter === 'all' || p.status === statusFilter));
+        if (firstPatient) {
+          setSelectedPatientId(firstPatient.id);
+        }
     }
-  }, [patients, selectedPatientId]);
+    // Si el paciente seleccionado ya no está en la lista (p. ej. por un filtro), deseleccionarlo.
+    if(selectedPatientId && !patients.some(p => p.id === selectedPatientId)) {
+        setSelectedPatientId(null);
+    }
+  }, [patients, selectedPatientId, statusFilter]);
 
-
-  const handleLogin = () => setIsAuthenticated(true);
-  
   const handleUpdatePatient = (updatedPatient: Patient) => {
     setPatients(prevPatients => prevPatients.map(p => p.id === updatedPatient.id ? updatedPatient : p));
   };
@@ -192,18 +222,14 @@ function App() {
   const handleConfirmDelete = () => {
     if (!patientToDeleteId) return;
 
-    // Guardar el índice del paciente a eliminar y el ID del paciente seleccionado actualmente
     const patientIndexToDelete = filteredPatients.findIndex(p => p.id === patientToDeleteId);
     
-    // Filtrar pacientes y facturas
     setPatients(prev => prev.filter(p => p.id !== patientToDeleteId));
     setInvoices(prev => prev.filter(inv => inv.patientId !== patientToDeleteId));
 
-    // Si el paciente eliminado era el seleccionado, seleccionar otro
     if (selectedPatientId === patientToDeleteId) {
         let newSelectedId: string | null = null;
         if (filteredPatients.length > 1) {
-            // Intentar seleccionar el siguiente, si no, el anterior
             newSelectedId = (patientIndexToDelete < filteredPatients.length - 1) 
                 ? filteredPatients[patientIndexToDelete + 1].id
                 : filteredPatients[patientIndexToDelete - 1].id;
@@ -227,9 +253,7 @@ function App() {
   }, [patients, searchTerm, statusFilter]);
 
   const selectedPatient = useMemo(() => {
-    // Si el paciente seleccionado ya no existe en la lista, deseleccionarlo.
     if (selectedPatientId && !patients.some(p => p.id === selectedPatientId)) {
-      setSelectedPatientId(null);
       return undefined;
     }
     return patients.find(p => p.id === selectedPatientId);
@@ -316,7 +340,7 @@ function App() {
             </>
         )}
         <div className="mt-auto p-4 border-t border-gray-200">
-             <button onClick={() => setIsAuthenticated(false)} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">
+             <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">
                 <LogoutIcon className="w-5 h-5" />
                 Cerrar Sesión
             </button>
