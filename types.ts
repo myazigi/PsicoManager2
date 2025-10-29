@@ -4,7 +4,7 @@ export interface Attachment {
   fileName: string;
   fileType: string;
   size: number; // en bytes
-  url: string; // Para fines de prueba, sería una URL real
+  dataUrl: string; // Contenido del archivo en Base64 para almacenamiento local
 }
 
 export interface Note {

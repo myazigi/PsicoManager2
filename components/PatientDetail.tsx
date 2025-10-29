@@ -1,8 +1,8 @@
 
-import React, { useState, useCallback } from 'react';
-import { Patient, Note, Invoice, PatientStatus } from '../types';
+import React, { useState, useCallback, useRef } from 'react';
+import { Patient, Note, Invoice, PatientStatus, Attachment } from '../types';
 import { summarizeNotes } from '../services/geminiService';
-import { SparklesIcon, PlusIcon, AttachmentIcon, DocumentTextIcon, ClockIcon } from './Icons';
+import { SparklesIcon, PlusIcon, AttachmentIcon, DocumentTextIcon, ClockIcon, XMarkIcon } from './Icons';
 import { Billing } from './Billing';
 import { PatientHistory } from './PatientHistory';
 
@@ -16,14 +16,39 @@ interface PatientDetailProps {
 
 const NoteEditor: React.FC<{onSave: (note: Note) => void; onCancel: () => void}> = ({ onSave, onCancel }) => {
     const [content, setContent] = useState('');
+    const [attachments, setAttachments] = useState<Omit<Attachment, 'id'>[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (loadEvent) => {
+                    const newAttachment: Omit<Attachment, 'id'> = {
+                        fileName: file.name,
+                        fileType: file.type,
+                        size: file.size,
+                        dataUrl: loadEvent.target?.result as string,
+                    };
+                    setAttachments(prev => [...prev, newAttachment]);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+
+    const removeAttachment = (indexToRemove: number) => {
+        setAttachments(prev => prev.filter((_, index) => index !== indexToRemove));
+    };
 
     const handleSave = () => {
-        if (content.trim()) {
+        if (content.trim() || attachments.length > 0) {
             const newNote: Note = {
                 id: `n-${Date.now()}`,
                 date: new Date().toISOString().split('T')[0],
                 content,
-                attachments: [],
+                attachments: attachments.map((att, i) => ({ ...att, id: `att-${Date.now()}-${i}` })),
             };
             onSave(newNote);
         }
@@ -38,12 +63,37 @@ const NoteEditor: React.FC<{onSave: (note: Note) => void; onCancel: () => void}>
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
             ></textarea>
+            
+            {attachments.length > 0 && (
+                <div className="mt-3 space-y-2">
+                    <h4 className="text-sm font-semibold text-brand-muted">Archivos para adjuntar:</h4>
+                    <div className="flex flex-wrap gap-2">
+                        {attachments.map((att, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-gray-100 border border-gray-300 text-sm px-3 py-1 rounded-full">
+                               <AttachmentIcon className="w-4 h-4 text-brand-muted" />
+                               <span className="max-w-[200px] truncate" title={att.fileName}>{att.fileName}</span>
+                               <button onClick={() => removeAttachment(index)} className="text-gray-500 hover:text-red-600">
+                                   <XMarkIcon className="w-4 h-4" />
+                               </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="flex justify-end items-center mt-3 gap-3">
+                 <input
+                    type="file"
+                    ref={fileInputRef}
+                    multiple
+                    onChange={handleFileSelect}
+                    className="hidden"
+                 />
                 <button 
                   type="button" 
                   className="p-2 text-brand-muted hover:text-brand-text"
-                  title="Adjuntar archivo (Función no implementada)"
-                  disabled
+                  title="Adjuntar archivo"
+                  onClick={() => fileInputRef.current?.click()}
                 >
                   <AttachmentIcon className="w-5 h-5" />
                 </button>
@@ -130,7 +180,7 @@ const NotesView: React.FC<{patient: Patient, onUpdatePatient: (updatedPatient: P
                     <h4 className="text-sm font-semibold text-brand-muted mb-2">Archivos Adjuntos:</h4>
                     <div className="flex flex-wrap gap-2">
                     {note.attachments.map(file => (
-                        <a key={file.id} href={file.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-white border border-gray-300 text-sm px-3 py-1 rounded-full text-brand-primary hover:bg-brand-light transition">
+                        <a key={file.id} href={file.dataUrl} download={file.fileName} className="flex items-center gap-2 bg-white border border-gray-300 text-sm px-3 py-1 rounded-full text-brand-primary hover:bg-brand-light transition">
                             <AttachmentIcon className="w-4 h-4" />
                             <span>{file.fileName}</span>
                         </a>

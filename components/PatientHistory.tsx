@@ -28,7 +28,7 @@ const NoteCard: React.FC<{ note: Note }> = ({ note }) => (
             <h5 className="text-sm font-semibold text-brand-muted mb-2">Archivos Adjuntos:</h5>
             <div className="flex flex-wrap gap-2">
                 {note.attachments.map(file => (
-                    <a key={file.id} href={file.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-white border border-gray-300 text-sm px-3 py-1 rounded-full text-brand-primary hover:bg-brand-light transition">
+                    <a key={file.id} href={file.dataUrl} download={file.fileName} className="flex items-center gap-2 bg-white border border-gray-300 text-sm px-3 py-1 rounded-full text-brand-primary hover:bg-brand-light transition">
                         <AttachmentIcon className="w-4 h-4" />
                         <span>{file.fileName}</span>
                     </a>

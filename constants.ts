@@ -22,7 +22,7 @@ export const MOCK_PATIENTS: Patient[] = [
         date: '2023-01-29',
         content: 'Se trabajó en la identificación de pensamientos automáticos negativos. Se asignó como tarea un registro de pensamientos. Ana muestra buena disposición.',
         attachments: [
-          { id: 'a1-2-1', fileName: 'registro_pensamientos.pdf', fileType: 'application/pdf', size: 125000, url: '#' }
+          { id: 'a1-2-1', fileName: 'registro_pensamientos.pdf', fileType: 'application/pdf', size: 125000, dataUrl: '#' }
         ],
       },
     ],
@@ -60,7 +60,7 @@ export const MOCK_PATIENTS: Patient[] = [
         date: '2023-03-17',
         content: 'Se abordaron técnicas de manejo del estrés y mindfulness. Luisa parece receptiva a las técnicas propuestas. Se le proporcionaron ejercicios para practicar en casa.',
         attachments: [
-           { id: 'a3-1-1', fileName: 'guia_mindfulness.docx', fileType: 'application/msword', size: 340000, url: '#' }
+           { id: 'a3-1-1', fileName: 'guia_mindfulness.docx', fileType: 'application/msword', size: 340000, dataUrl: '#' }
         ],
       },
     ],
