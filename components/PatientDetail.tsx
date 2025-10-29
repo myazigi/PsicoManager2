@@ -1,7 +1,6 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { Patient, Note, Invoice, PatientStatus, Attachment } from '../types';
-import { summarizeNotes } from '../services/geminiService';
 import { SparklesIcon, PlusIcon, AttachmentIcon, DocumentTextIcon, ClockIcon, XMarkIcon } from './Icons';
 import { Billing } from './Billing';
 import { PatientHistory } from './PatientHistory';
@@ -115,18 +114,8 @@ const NoteEditor: React.FC<{onSave: (note: Note) => void; onCancel: () => void}>
 }
 
 const NotesView: React.FC<{patient: Patient, onUpdatePatient: (updatedPatient: Patient) => void}> = ({patient, onUpdatePatient}) => {
-  const [summary, setSummary] = useState('');
-  const [isSummarizing, setIsSummarizing] = useState(false);
   const [showNoteEditor, setShowNoteEditor] = useState(false);
 
-  const handleSummarize = useCallback(async () => {
-    setIsSummarizing(true);
-    setSummary('');
-    const result = await summarizeNotes(patient.name, patient.notes);
-    setSummary(result);
-    setIsSummarizing(false);
-  }, [patient.name, patient.notes]);
-  
   const handleSaveNote = (newNote: Note) => {
     const updatedPatient = {
         ...patient,
@@ -142,14 +131,6 @@ const NotesView: React.FC<{patient: Patient, onUpdatePatient: (updatedPatient: P
           <h2 className="text-2xl font-semibold text-brand-text">Notas de Sesión</h2>
           <div className="flex items-center gap-2">
             <button
-                onClick={handleSummarize}
-                disabled={isSummarizing}
-                className="flex items-center gap-2 px-4 py-2 bg-brand-accent text-brand-secondary font-semibold rounded-md hover:opacity-90 transition disabled:opacity-50 disabled:cursor-wait"
-            >
-                <SparklesIcon className="w-5 h-5" />
-                {isSummarizing ? 'Resumiendo...' : 'Resumen IA'}
-            </button>
-            <button
                 onClick={() => setShowNoteEditor(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-md hover:bg-brand-secondary transition"
             >
@@ -159,15 +140,6 @@ const NotesView: React.FC<{patient: Patient, onUpdatePatient: (updatedPatient: P
           </div>
         </div>
         
-        {isSummarizing && <div className="text-center p-8 text-brand-muted">Generando resumen inteligente...</div>}
-        
-        {summary && (
-          <div className="prose prose-sm max-w-none bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
-            <h3 className="text-lg font-semibold text-yellow-900">Resumen Clínico con IA</h3>
-            {summary.split('\n').map((line, i) => <p key={i} className="my-1">{line}</p>)}
-          </div>
-        )}
-
         {showNoteEditor && <NoteEditor onSave={handleSaveNote} onCancel={() => setShowNoteEditor(false)} />}
 
         <div className="space-y-4 mt-4">

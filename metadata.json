@@ -1,5 +1,5 @@
 {
   "name": "PsiqueManager - Asistente para Psicólogos",
-  "description": "Una aplicación web segura y completa para que los psicólogos gestionen pacientes, notas de sesión, archivos y obtengan resúmenes inteligentes con IA. Facilita la organización y el seguimiento del progreso del paciente.",
+  "description": "Una aplicación web segura y completa para que los psicólogos gestionen pacientes, notas de sesión, archivos y facturación. Facilita la organización y el seguimiento del progreso del paciente.",
   "requestFramePermissions": []
 }
