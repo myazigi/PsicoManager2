@@ -1,4 +1,4 @@
-import { Patient, PatientStatus, Invoice, InvoiceStatus, PaymentMethod } from './types';
+import { Patient, PatientStatus, Invoice, InvoiceStatus, PaymentMethod, Appointment, AppointmentStatus } from './types';
 
 export const MOCK_PATIENTS: Patient[] = [
   {
@@ -138,5 +138,48 @@ export const MOCK_INVOICES: Invoice[] = [
         ],
         status: InvoiceStatus.Overdue,
         payments: []
+    },
+];
+
+const now = new Date();
+const getISODate = (dayOffset: number, hour: number, minute: number = 0) => {
+    const date = new Date(now);
+    date.setDate(date.getDate() + dayOffset);
+    date.setHours(hour, minute, 0, 0);
+    return date.toISOString();
+}
+
+export const MOCK_APPOINTMENTS: Appointment[] = [
+    {
+        id: 'apt1',
+        patientId: 'p1',
+        title: 'Sesión con Ana García',
+        start: getISODate(2, 10),
+        end: getISODate(2, 11),
+        status: AppointmentStatus.Scheduled,
+    },
+    {
+        id: 'apt2',
+        patientId: 'p2',
+        title: 'Sesión con Carlos Martínez',
+        start: getISODate(3, 14),
+        end: getISODate(3, 15),
+        status: AppointmentStatus.Scheduled,
+    },
+    {
+        id: 'apt3',
+        patientId: 'p1',
+        title: 'Sesión con Ana García',
+        start: getISODate(-5, 16),
+        end: getISODate(-5, 17),
+        status: AppointmentStatus.Completed,
+    },
+    {
+        id: 'apt4',
+        patientId: 'p4',
+        title: 'Terapia de Pareja',
+        start: getISODate(2, 12),
+        end: getISODate(2, 13, 30),
+        status: AppointmentStatus.Scheduled,
     },
 ];

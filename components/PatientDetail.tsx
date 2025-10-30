@@ -1,9 +1,10 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { Patient, Note, Invoice, PatientStatus, Attachment } from '../types';
-import { SparklesIcon, PlusIcon, AttachmentIcon, DocumentTextIcon, ClockIcon, XMarkIcon } from './Icons';
+import { SparklesIcon, PlusIcon, AttachmentIcon, DocumentTextIcon, ClockIcon, XMarkIcon, EnvelopeIcon } from './Icons';
 import { Billing } from './Billing';
 import { PatientHistory } from './PatientHistory';
+import { sendEmail } from '../utils/emailService';
 
 interface PatientDetailProps {
   patient: Patient;
@@ -11,7 +12,69 @@ interface PatientDetailProps {
   onUpdatePatient: (updatedPatient: Patient) => void;
   onAddInvoice: (newInvoice: Omit<Invoice, 'id' | 'invoiceNumber' | 'status'>) => Invoice;
   onUpdateInvoice: (updatedInvoice: Invoice) => void;
+  onShowToast: (message: string, type: 'success' | 'error') => void;
 }
+
+const CommunicationView: React.FC<{patient: Patient, onShowToast: (message: string, type: 'success' | 'error') => void}> = ({ patient, onShowToast }) => {
+    const [subject, setSubject] = useState('');
+    const [body, setBody] = useState('');
+    const [isSending, setIsSending] = useState(false);
+
+    const handleSendEmail = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSending(true);
+        const response = await sendEmail(patient.email, subject, body);
+        if (response.success) {
+            onShowToast(response.message, 'success');
+            setSubject('');
+            setBody('');
+        } else {
+            onShowToast(response.message, 'error');
+        }
+        setIsSending(false);
+    };
+
+    return (
+        <div>
+            <h2 className="text-2xl font-semibold text-brand-text mb-4">Enviar Comunicación</h2>
+            <form onSubmit={handleSendEmail} className="space-y-4">
+                <div>
+                    <label htmlFor="email-subject" className="block text-sm font-medium text-gray-700">Asunto</label>
+                    <input
+                        type="text"
+                        id="email-subject"
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white text-brand-text"
+                        required
+                    />
+                </div>
+                <div>
+                    <label htmlFor="email-body" className="block text-sm font-medium text-gray-700">Mensaje</label>
+                    <textarea
+                        id="email-body"
+                        rows={8}
+                        value={body}
+                        onChange={(e) => setBody(e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white text-brand-text"
+                        required
+                    ></textarea>
+                </div>
+                <div className="flex justify-end">
+                    <button
+                        type="submit"
+                        disabled={isSending}
+                        className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-md hover:bg-brand-secondary transition disabled:bg-brand-secondary/50"
+                    >
+                        <EnvelopeIcon className="w-5 h-5" />
+                        {isSending ? 'Enviando...' : 'Enviar Email'}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+};
+
 
 const NoteEditor: React.FC<{onSave: (note: Note) => void; onCancel: () => void}> = ({ onSave, onCancel }) => {
     const [content, setContent] = useState('');
@@ -56,7 +119,7 @@ const NoteEditor: React.FC<{onSave: (note: Note) => void; onCancel: () => void}>
     return (
         <div className="bg-white p-4 rounded-lg border border-gray-200 mt-4">
             <textarea
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-primary focus:border-transparent transition"
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-primary focus:border-transparent transition bg-white text-brand-text"
                 rows={5}
                 placeholder="Escribe la nota de la sesión aquí..."
                 value={content}
@@ -209,57 +272,71 @@ const PatientStatusChanger: React.FC<{ patient: Patient; onUpdatePatient: (patie
 };
 
 export const PatientDetail: React.FC<PatientDetailProps> = (props) => {
-  const [activeTab, setActiveTab] = useState<'notes' | 'billing' | 'history'>('notes');
-  const { patient, invoices, onUpdatePatient, onAddInvoice, onUpdateInvoice } = props;
+  const [activeTab, setActiveTab] = useState<'notes' | 'billing' | 'history' | 'communication'>('notes');
+  const { patient, invoices, onUpdatePatient, onAddInvoice, onUpdateInvoice, onShowToast } = props;
   
   return (
     <div className="p-4 md:p-6 lg:p-8 h-full overflow-y-auto">
       <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-        <div className="flex items-start space-x-4">
-          <img src={patient.avatarUrl} alt={patient.name} className="w-20 h-20 rounded-full object-cover" />
+        <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4">
+          <img src={patient.avatarUrl} alt={patient.name} className="w-24 h-24 sm:w-20 sm:h-20 rounded-full object-cover" />
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-brand-text">{patient.name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-brand-text">{patient.name}</h1>
             <p className="text-brand-muted">{patient.email}</p>
             <PatientStatusChanger patient={patient} onUpdatePatient={onUpdatePatient} />
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
         <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-6">
+          <nav className="-mb-px flex space-x-2 sm:space-x-6 overflow-x-auto">
             <button
               onClick={() => setActiveTab('notes')}
-              className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`whitespace-nowrap pb-4 px-3 sm:px-1 border-b-2 font-medium text-sm transition-colors flex items-center ${
                 activeTab === 'notes'
                   ? 'border-brand-primary text-brand-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              <DocumentTextIcon className="w-5 h-5 mr-2 inline-block"/>
-              Notas de Sesión
+              <DocumentTextIcon className="w-5 h-5 sm:mr-2"/>
+              <span className="hidden sm:inline">Notas de Sesión</span>
+              <span className="sm:hidden">Notas</span>
             </button>
             <button
               onClick={() => setActiveTab('billing')}
-              className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`whitespace-nowrap pb-4 px-3 sm:px-1 border-b-2 font-medium text-sm transition-colors flex items-center ${
                 activeTab === 'billing'
                   ? 'border-brand-primary text-brand-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              <SparklesIcon className="w-5 h-5 mr-2 inline-block" />
-              Facturación
+              <SparklesIcon className="w-5 h-5 sm:mr-2" />
+              <span className="hidden sm:inline">Facturación</span>
+              <span className="sm:hidden">Facturas</span>
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`whitespace-nowrap pb-4 px-3 sm:px-1 border-b-2 font-medium text-sm transition-colors flex items-center ${
                 activeTab === 'history'
                   ? 'border-brand-primary text-brand-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              <ClockIcon className="w-5 h-5 mr-2 inline-block" />
+              <ClockIcon className="w-5 h-5 sm:mr-2" />
               Historial
+            </button>
+             <button
+              onClick={() => setActiveTab('communication')}
+              className={`whitespace-nowrap pb-4 px-3 sm:px-1 border-b-2 font-medium text-sm transition-colors flex items-center ${
+                activeTab === 'communication'
+                  ? 'border-brand-primary text-brand-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <EnvelopeIcon className="w-5 h-5 sm:mr-2" />
+              <span className="hidden sm:inline">Comunicaciones</span>
+              <span className="sm:hidden">Comms</span>
             </button>
           </nav>
         </div>
@@ -267,6 +344,7 @@ export const PatientDetail: React.FC<PatientDetailProps> = (props) => {
         {activeTab === 'notes' && <NotesView patient={patient} onUpdatePatient={onUpdatePatient} />}
         {activeTab === 'billing' && <Billing patient={patient} invoices={invoices} onAddInvoice={onAddInvoice} onUpdateInvoice={onUpdateInvoice} />}
         {activeTab === 'history' && <PatientHistory patient={patient} invoices={invoices} />}
+        {activeTab === 'communication' && <CommunicationView patient={patient} onShowToast={onShowToast} />}
 
       </div>
     </div>

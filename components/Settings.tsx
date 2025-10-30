@@ -94,7 +94,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, isAdmin, allUsers, onU
         <div className="p-4 md:p-6 lg:p-8 h-full overflow-y-auto">
             <h1 className="text-3xl font-bold text-brand-text mb-8">Ajustes de la Cuenta</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-white p-6 rounded-xl shadow-sm">
                     <h2 className="text-2xl font-semibold text-brand-text mb-4">Cambiar Email</h2>
                     <form onSubmit={handleEmailChange} className="space-y-4">
@@ -140,8 +140,8 @@ export const Settings: React.FC<SettingsProps> = ({ user, isAdmin, allUsers, onU
                     <div className="space-y-3">
                         {allUsers.filter(u => u.email !== user.email).map(otherUser => (
                             <div key={otherUser.email} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border">
-                                <span className="text-brand-muted">{otherUser.email}</span>
-                                <button onClick={() => handleRequestDelete(otherUser)} className="flex items-center gap-2 px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition">
+                                <span className="text-brand-muted truncate pr-2">{otherUser.email}</span>
+                                <button onClick={() => handleRequestDelete(otherUser)} className="flex items-center gap-2 px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition flex-shrink-0">
                                     <TrashIcon className="w-4 h-4" />
                                     Eliminar
                                 </button>
@@ -154,12 +154,12 @@ export const Settings: React.FC<SettingsProps> = ({ user, isAdmin, allUsers, onU
             
             <div className="bg-white p-6 rounded-xl shadow-sm mt-8 border-2 border-red-200">
                 <h2 className="text-2xl font-semibold text-red-700 mb-4">Zona de Peligro</h2>
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h3 className="font-semibold text-brand-text">Eliminar esta cuenta</h3>
                         <p className="text-sm text-brand-muted">Una vez que eliminas tu cuenta, no hay vuelta atrás. Por favor, ten la certeza.</p>
                     </div>
-                    <button onClick={() => handleRequestDelete(user)} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition font-semibold">
+                    <button onClick={() => handleRequestDelete(user)} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition font-semibold flex-shrink-0">
                         Eliminar mi cuenta
                     </button>
                 </div>
@@ -172,13 +172,13 @@ export const Settings: React.FC<SettingsProps> = ({ user, isAdmin, allUsers, onU
                             Esta acción es irreversible. Se eliminarán permanentemente todos los datos asociados a la cuenta de <span className="font-bold">{userToDelete.email}</span>, incluyendo pacientes, notas y facturas.
                         </p>
                         <p className="text-brand-text mb-4 font-semibold">
-                            Para confirmar, escribe el email del usuario: <code className="text-red-600 bg-red-100 p-1 rounded">{userToDelete.email}</code>
+                            Para confirmar, escribe el email del usuario: <code className="text-red-600 bg-red-100 p-1 rounded break-all">{userToDelete.email}</code>
                         </p>
                         <input
                             type="text"
                             value={confirmationText}
                             onChange={(e) => setConfirmationText(e.target.value)}
-                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 bg-white text-brand-text"
                             autoFocus
                         />
                         <div className="flex justify-end gap-3 pt-4 border-t mt-6">

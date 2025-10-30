@@ -70,26 +70,28 @@ export const Reports: React.FC<ReportsProps> = ({ invoices, patients }) => {
             <div className="bg-white p-6 rounded-xl shadow-sm">
                 <h2 className="text-2xl font-semibold text-brand-text mb-4">Últimos Pagos Recibidos</h2>
                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Fecha</th>
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Paciente</th>
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Nº Factura</th>
-                                <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase">Importe</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {recentPayments.map(payment => (
-                                <tr key={payment.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-3 text-gray-700">{new Date(payment.date).toLocaleDateString()}</td>
-                                    <td className="px-4 py-3 font-medium text-brand-text">{payment.patientName}</td>
-                                    <td className="px-4 py-3 text-gray-700">{payment.invoiceNumber}</td>
-                                    <td className="px-4 py-3 text-right font-semibold text-green-700">{payment.amount.toFixed(2)}$</td>
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[600px]">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Fecha</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Paciente</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Nº Factura</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase">Importe</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {recentPayments.map(payment => (
+                                    <tr key={payment.id} className="hover:bg-gray-50">
+                                        <td className="px-4 py-3 text-gray-700">{new Date(payment.date).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 font-medium text-brand-text">{payment.patientName}</td>
+                                        <td className="px-4 py-3 text-gray-700">{payment.invoiceNumber}</td>
+                                        <td className="px-4 py-3 text-right font-semibold text-green-700">{payment.amount.toFixed(2)}$</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                      {recentPayments.length === 0 && <div className="text-center p-8 text-gray-500">No hay pagos registrados recientemente.</div>}
                 </div>
             </div>
@@ -97,28 +99,30 @@ export const Reports: React.FC<ReportsProps> = ({ invoices, patients }) => {
             <div className="bg-white p-6 rounded-xl shadow-sm mt-8">
                 <h2 className="text-2xl font-semibold text-brand-text mb-4">Facturas Pendientes de Cobro</h2>
                 <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Paciente</th>
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Nº Factura</th>
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Vencimiento</th>
-                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Estado</th>
-                                <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {pendingInvoices.map(invoice => (
-                                <tr key={invoice.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-3 font-medium text-brand-text">{patientMap.get(invoice.patientId) || 'Desconocido'}</td>
-                                    <td className="px-4 py-3 text-gray-700">{invoice.invoiceNumber}</td>
-                                    <td className={`px-4 py-3 text-gray-700 ${invoice.status === InvoiceStatus.Overdue ? 'font-bold text-red-600' : ''}`}>{new Date(invoice.dueDate).toLocaleDateString()}</td>
-                                    <td className="px-4 py-3"><InvoiceStatusBadge status={invoice.status} /></td>
-                                    <td className="px-4 py-3 text-right font-semibold text-brand-text">{invoice.total.toFixed(2)}$</td>
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[600px]">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Paciente</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Nº Factura</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Vencimiento</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Estado</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase">Total</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {pendingInvoices.map(invoice => (
+                                    <tr key={invoice.id} className="hover:bg-gray-50">
+                                        <td className="px-4 py-3 font-medium text-brand-text">{patientMap.get(invoice.patientId) || 'Desconocido'}</td>
+                                        <td className="px-4 py-3 text-gray-700">{invoice.invoiceNumber}</td>
+                                        <td className={`px-4 py-3 text-gray-700 ${invoice.status === InvoiceStatus.Overdue ? 'font-bold text-red-600' : ''}`}>{new Date(invoice.dueDate).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3"><InvoiceStatusBadge status={invoice.status} /></td>
+                                        <td className="px-4 py-3 text-right font-semibold text-brand-text">{invoice.total.toFixed(2)}$</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                     {pendingInvoices.length === 0 && <div className="text-center p-8 text-gray-500">No hay facturas pendientes de cobro.</div>}
                 </div>
             </div>

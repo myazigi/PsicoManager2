@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 type IconProps = {
@@ -99,5 +100,23 @@ export const Cog6ToothIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =>
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-1.003 1.11-1.226l.05-.022c.557-.225 1.156-.225 1.713 0l.05.022c.55.223 1.02.684 1.11 1.226l.048.289.041.25c.026.16.041.324.041.491v.213c0 .167-.015.331-.041.491l-.041.25-.048.289c-.09.542-.56 1.003-1.11 1.226l-.05.022c-.557.225-1.156-.225-1.713 0l-.05-.022c-.55-.223-1.02-.684-1.11-1.226l-.048-.289-.041-.25c-.026-.16-.041-.324-.041-.491v-.213c0-.167.015.331.041.491l.041.25.048.289Zm0 0a2.99 2.99 0 0 0-2.083 4.502l-1.33 1.33a2.99 2.99 0 0 0 0 4.242l1.33 1.33a2.99 2.99 0 0 0 4.502 2.083l.289-.048.25-.041c.16-.026.324-.041.491-.041h.213c.167 0 .331.015.491.041l.25.041.289.048a2.99 2.99 0 0 0 2.083-4.502l1.33-1.33a2.99 2.99 0 0 0 0-4.242l-1.33-1.33a2.99 2.99 0 0 0-4.502-2.083l-.289.048-.25.041c-.16.026-.324.041-.491-.041h-.213c-.167 0-.331-.015-.491-.041l-.25-.041-.289-.048Z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+    </svg>
+);
+
+export const CalendarDaysIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M12 12.75h.008v.008H12v-.008Z" />
+    </svg>
+);
+
+export const EnvelopeIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+    </svg>
+);
+
+export const Bars3Icon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
     </svg>
 );

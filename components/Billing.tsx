@@ -44,22 +44,22 @@ const InvoiceEditor: React.FC<{ patient: Patient, onSave: (invoiceData: Omit<Inv
 
     return (
         <div>
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div><label className="block text-sm font-medium text-gray-700">Paciente</label><p className="mt-1 p-2 bg-gray-100 rounded-md">{patient.name}</p></div>
                 <div></div>
-                <div><label className="block text-sm font-medium text-gray-700">Fecha de Emisión</label><input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" /></div>
-                <div><label className="block text-sm font-medium text-gray-700">Fecha de Vencimiento</label><input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" /></div>
+                <div><label className="block text-sm font-medium text-gray-700">Fecha de Emisión</label><input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white text-brand-text" /></div>
+                <div><label className="block text-sm font-medium text-gray-700">Fecha de Vencimiento</label><input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white text-brand-text" /></div>
             </div>
             
             <h4 className="font-semibold mb-2">Conceptos</h4>
-            <div className="space-y-2">
+            <div className="space-y-4">
                 {items.map((item, index) => (
-                    <div key={index} className="grid grid-cols-12 gap-2 items-center">
-                        <input type="text" placeholder="Descripción" value={item.description} onChange={e => handleItemChange(index, 'description', e.target.value)} className="col-span-6 border-gray-300 rounded-md shadow-sm" />
-                        <input type="number" placeholder="Cant." value={item.quantity} onChange={e => handleItemChange(index, 'quantity', Number(e.target.value))} className="col-span-2 border-gray-300 rounded-md shadow-sm" />
-                        <input type="number" placeholder="Precio" value={item.unitPrice} onChange={e => handleItemChange(index, 'unitPrice', Number(e.target.value))} className="col-span-2 border-gray-300 rounded-md shadow-sm" />
-                        <span className="col-span-1 text-right">{(item.quantity * item.unitPrice).toFixed(2)}$</span>
-                        <button onClick={() => removeItem(index)} className="col-span-1 text-red-500 hover:text-red-700"><TrashIcon className="w-5 h-5 mx-auto" /></button>
+                    <div key={index} className="grid grid-cols-12 gap-2 items-center border-t pt-3">
+                        <input type="text" placeholder="Descripción" value={item.description} onChange={e => handleItemChange(index, 'description', e.target.value)} className="col-span-12 md:col-span-6 border-gray-300 rounded-md shadow-sm bg-white text-brand-text" />
+                        <input type="number" placeholder="Cant." value={item.quantity} onChange={e => handleItemChange(index, 'quantity', Number(e.target.value))} className="col-span-4 md:col-span-2 border-gray-300 rounded-md shadow-sm bg-white text-brand-text" />
+                        <input type="number" placeholder="Precio" value={item.unitPrice} onChange={e => handleItemChange(index, 'unitPrice', Number(e.target.value))} className="col-span-4 md:col-span-2 border-gray-300 rounded-md shadow-sm bg-white text-brand-text" />
+                        <span className="col-span-2 md:col-span-1 text-right self-center">{(item.quantity * item.unitPrice).toFixed(2)}$</span>
+                        <button onClick={() => removeItem(index)} className="col-span-2 md:col-span-1 text-red-500 hover:text-red-700"><TrashIcon className="w-5 h-5 mx-auto" /></button>
                     </div>
                 ))}
             </div>
@@ -98,11 +98,11 @@ const PaymentModal: React.FC<{invoice: Invoice, onSave: (payment: Omit<Payment, 
     return (
         <div>
             <p className="mb-4">Añadir pago a la factura <span className="font-semibold">{invoice.invoiceNumber}</span>. Pendiente: {remainingAmount.toFixed(2)}$</p>
-            <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-gray-700">Importe</label><input type="number" value={amount} onChange={e => setAmount(Number(e.target.value))} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"/></div>
-                <div><label className="block text-sm font-medium text-gray-700">Fecha</label><input type="date" value={date} onChange={e => setDate(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"/></div>
-                <div className="col-span-2"><label className="block text-sm font-medium text-gray-700">Método de Pago</label>
-                    <select value={method} onChange={e => setMethod(e.target.value as PaymentMethod)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label className="block text-sm font-medium text-gray-700">Importe</label><input type="number" value={amount} onChange={e => setAmount(Number(e.target.value))} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white text-brand-text"/></div>
+                <div><label className="block text-sm font-medium text-gray-700">Fecha</label><input type="date" value={date} onChange={e => setDate(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white text-brand-text"/></div>
+                <div className="col-span-1 sm:col-span-2"><label className="block text-sm font-medium text-gray-700">Método de Pago</label>
+                    <select value={method} onChange={e => setMethod(e.target.value as PaymentMethod)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-white text-brand-text">
                         {Object.values(PaymentMethod).map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                 </div>
@@ -124,27 +124,31 @@ const InvoiceDetailModal: React.FC<{ invoice: Invoice, onAddPayment: (payment: O
     return (
         <>
         <div>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mb-6 text-sm">
                 <div><span className="font-semibold text-gray-600">Nº Factura:</span> {invoice.invoiceNumber}</div>
                 <div><span className="font-semibold text-gray-600">Estado:</span> <InvoiceStatusBadge status={invoice.status} /></div>
                 <div><span className="font-semibold text-gray-600">Fecha Emisión:</span> {new Date(invoice.issueDate).toLocaleDateString()}</div>
                 <div><span className="font-semibold text-gray-600">Fecha Vencimiento:</span> {new Date(invoice.dueDate).toLocaleDateString()}</div>
             </div>
             <h4 className="font-semibold mb-2 text-brand-text">Conceptos</h4>
-            <table className="w-full text-left text-sm mb-6">
-                <thead><tr className="border-b"><th className="py-2">Descripción</th><th>Cant.</th><th>P. Unit.</th><th className="text-right">Total</th></tr></thead>
-                <tbody>{invoice.items.map(item => <tr key={item.id}><td className="py-1">{item.description}</td><td>{item.quantity}</td><td>{item.unitPrice.toFixed(2)}$</td><td className="text-right">{(item.quantity * item.unitPrice).toFixed(2)}$</td></tr>)}</tbody>
-            </table>
-            <div className="flex justify-end mb-6"><div className="w-1/3"><div className="flex justify-between border-t pt-2"><span className="font-semibold">Total:</span><span className="font-bold">{total.toFixed(2)}$</span></div></div></div>
+            <div className="overflow-x-auto mb-6">
+                <table className="w-full text-left text-sm min-w-[400px]">
+                    <thead><tr className="border-b"><th className="py-2">Descripción</th><th>Cant.</th><th>P. Unit.</th><th className="text-right">Total</th></tr></thead>
+                    <tbody>{invoice.items.map(item => <tr key={item.id}><td className="py-1">{item.description}</td><td>{item.quantity}</td><td>{item.unitPrice.toFixed(2)}$</td><td className="text-right">{(item.quantity * item.unitPrice).toFixed(2)}$</td></tr>)}</tbody>
+                </table>
+            </div>
+            <div className="flex justify-end mb-6"><div className="w-full sm:w-1/2 md:w-1/3"><div className="flex justify-between border-t pt-2"><span className="font-semibold">Total:</span><span className="font-bold">{total.toFixed(2)}$</span></div></div></div>
             
             <h4 className="font-semibold mb-2 text-brand-text">Pagos</h4>
             {invoice.payments.length > 0 ? (
-                <table className="w-full text-left text-sm">
-                    <thead><tr className="border-b"><th className="py-2">Fecha</th><th>Método</th><th className="text-right">Importe</th></tr></thead>
-                    <tbody>{invoice.payments.map(p => <tr key={p.id}><td className="py-1">{new Date(p.date).toLocaleDateString()}</td><td>{p.method}</td><td className="text-right">{p.amount.toFixed(2)}$</td></tr>)}</tbody>
-                </table>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm min-w-[400px]">
+                        <thead><tr className="border-b"><th className="py-2">Fecha</th><th>Método</th><th className="text-right">Importe</th></tr></thead>
+                        <tbody>{invoice.payments.map(p => <tr key={p.id}><td className="py-1">{new Date(p.date).toLocaleDateString()}</td><td>{p.method}</td><td className="text-right">{p.amount.toFixed(2)}$</td></tr>)}</tbody>
+                    </table>
+                </div>
             ) : <p className="text-sm text-gray-500">No hay pagos registrados.</p>}
-            <div className="flex justify-end mt-2"><div className="w-1/3"><div className="flex justify-between border-t pt-2"><span className="font-semibold">Total Pagado:</span><span className="font-bold text-green-600">{paid.toFixed(2)}$</span></div><div className="flex justify-between"><span className="font-semibold">Pendiente:</span><span className="font-bold text-red-600">{pending.toFixed(2)}$</span></div></div></div>
+            <div className="flex justify-end mt-2"><div className="w-full sm:w-1/2 md:w-1/3"><div className="flex justify-between border-t pt-2"><span className="font-semibold">Total Pagado:</span><span className="font-bold text-green-600">{paid.toFixed(2)}$</span></div><div className="flex justify-between"><span className="font-semibold">Pendiente:</span><span className="font-bold text-red-600">{pending.toFixed(2)}$</span></div></div></div>
         </div>
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
             <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cerrar</button>
@@ -213,29 +217,31 @@ export const Billing: React.FC<BillingProps> = ({ patient, invoices, onAddInvoic
             </div>
 
             <div className="bg-white border rounded-lg overflow-hidden">
-                <table className="w-full">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Nº Factura</th>
-                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Fecha Emisión</th>
-                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Total</th>
-                            <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {invoices.map(invoice => {
-                            const total = invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-                            return (
-                                <tr key={invoice.id} onClick={() => setSelectedInvoice(invoice)} className="hover:bg-gray-50 cursor-pointer">
-                                    <td className="px-4 py-3 font-medium text-brand-primary">{invoice.invoiceNumber}</td>
-                                    <td className="px-4 py-3 text-gray-700">{new Date(invoice.issueDate).toLocaleDateString()}</td>
-                                    <td className="px-4 py-3 text-gray-700">{total.toFixed(2)}$</td>
-                                    <td className="px-4 py-3"><InvoiceStatusBadge status={invoice.status} /></td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[600px]">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Nº Factura</th>
+                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Fecha Emisión</th>
+                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Total</th>
+                                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {invoices.map(invoice => {
+                                const total = invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+                                return (
+                                    <tr key={invoice.id} onClick={() => setSelectedInvoice(invoice)} className="hover:bg-gray-50 cursor-pointer">
+                                        <td className="px-4 py-3 font-medium text-brand-primary">{invoice.invoiceNumber}</td>
+                                        <td className="px-4 py-3 text-gray-700">{new Date(invoice.issueDate).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 text-gray-700">{total.toFixed(2)}$</td>
+                                        <td className="px-4 py-3"><InvoiceStatusBadge status={invoice.status} /></td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
                  {invoices.length === 0 && <div className="text-center p-8 text-gray-500">No hay facturas para este paciente.</div>}
             </div>
 

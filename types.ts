@@ -97,3 +97,21 @@ export interface User {
   email: string;
   hashedPassword: string;
 }
+
+// --- Tipos para Agenda ---
+
+export enum AppointmentStatus {
+    Scheduled = 'Programada',
+    Completed = 'Completada',
+    Cancelled = 'Cancelada',
+}
+
+export interface Appointment {
+    id: string;
+    patientId: string;
+    title: string;
+    start: string; // ISO String
+    end: string;   // ISO String
+    status: AppointmentStatus;
+    notes?: string;
+}
